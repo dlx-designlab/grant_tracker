@@ -14,7 +14,23 @@ openai_api_key = os.getenv('OPENAI_API_KEY')
 # print(f'API Key: {api_key}')
 client = OpenAI(api_key=openai_api_key)
 messages = [
-            {"role": "developer", "content": "Make a summary of this email which includes details of an acedemic grant. The email is in japanese and you need to summarize it in english. Provide the summary in a structured format. Short Title, 300 chracters description, grant ammount and application deadline."},
+            {"role": "developer", 
+             "content": 
+             "Make a summary of this email which includes details of an acedemic grant." 
+             "The email is in japanese. Summarize it in english." 
+             "Provide the summary in the foillowing structured format:"
+             "Titlle: A Short catchy Title,"
+             "Content: max 300 chracters description,"
+             "Eligibility: the eligibility criteria for the grant,"
+             "Categoty: one of the following categories: Medical, Materials, Energy, Environment, Social Sciences, Humanities, Engineering, Computer Science, Mathematics, Physics, Chemistry, Biology, Other."
+             "Amount: the grant ammount, preferably a number in JPY, "
+             "Internal Deadline: date of internal submission deadline."
+             "Actual Deadline: the deadline for the grant application submission to the prividing agency."
+             "Other Deadlines: any other deadlines mentioned in the email."
+             "Comments: any additional comments or information."
+             "URL: the URL of the grant announcement."
+             "Contact: the contact email for the grant."
+            },
         ]
 
 
