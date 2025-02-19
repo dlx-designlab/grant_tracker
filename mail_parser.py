@@ -1,6 +1,7 @@
 # Get Emails From cloudmailin.net
 # Run this script to start the server
 from openai import OpenAI
+from pydantic import BaseModel
 import os
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
@@ -9,6 +10,21 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
+
+class GrantEmailData(BaseModel):
+    titlle: str
+    content: str
+    amount: int
+    internal_deadline: str
+    actual_deadline: str
+    other_deadlines: str
+    category: str
+    eligibility: str
+    comments: str
+    url: str
+    contact: str
+    # participants: list[str]
+
 
 openai_api_key = os.getenv('OPENAI_API_KEY')
 # print(f'API Key: {api_key}')
@@ -34,6 +50,7 @@ messages = [
         ]
 
 
+
 @app.route('/email', methods=['POST'])
 def receive_email():
     data = request.get_json()
@@ -49,16 +66,35 @@ def receive_email():
     print(f'Subject: {subject}')
     print(f'Body: {body}')
 
+    # Send the email to OpenAI for parsing and ask for a structured JSON response
+    # https://platform.openai.com/docs/guides/structured-outputs
     user_prompt = f"Subject: {subject}\nBody: {body}"
     messages.append({"role": "user", "content": user_prompt})
-    response = client.chat.completions.create(
+    response = client.beta.chat.completions.parse(
             model = "gpt-4o-mini",
             store = True,
-            messages = messages
+            messages = messages,
+            response_format = GrantEmailData,
         )
-    print("##############################")
-    print(f"Email Summary: \n {response.choices[0].message.content}")
+    # print("##############################")
+    # print(f"Email Summary: \n {response.choices[0].message.parsed}")
     
+    parsed_message = response.choices[0].message.parsed
+
+    # Print the structured JSON elements
+    print("##############################")
+    print("Email Summary....")
+    print(f"Title: {parsed_message.titlle}")
+    print(f"Content: {parsed_message.content}")
+    print(f"Amount: {parsed_message.amount}")
+    print(f"Internal Deadline: {parsed_message.internal_deadline}")
+    print(f"Actual Deadline: {parsed_message.actual_deadline}")
+    print(f"Other Deadlines: {parsed_message.other_deadlines}")
+    print(f"Category: {parsed_message.category}")
+    print(f"Eligibility: {parsed_message.eligibility}")
+    print(f"Comments: {parsed_message.comments}")
+    print(f"URL: {parsed_message.url}")
+    print(f"Contact: {parsed_message.contact}")    
 
     return jsonify({"status": "success"}), 200
 
