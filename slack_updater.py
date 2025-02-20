@@ -1,5 +1,6 @@
 # Slack Bot Settings: https://api.slack.com/apps/
 import os
+from dotenv import load_dotenv
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
@@ -23,6 +24,9 @@ class SlackUpdater:
 # Example usage
 if __name__ == "__main__":
     
+    # Load environment variables
+    load_dotenv()
+
     MESSAGE = "Hello, Slack! This is a Test 🚀🚀🚀 !!!"
     
     slack_updater = SlackUpdater()

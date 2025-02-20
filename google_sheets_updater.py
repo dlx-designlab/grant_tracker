@@ -1,4 +1,5 @@
 import os
+from dotenv import load_dotenv
 import json
 import base64
 import gspread
@@ -9,10 +10,10 @@ class GoogleSheetsUpdater:
         
         SPREADSHEET_URL = "https://docs.google.com/spreadsheets/d/18taAPoE91R-0lna41CsCIO-xjD-CcRy90ikaV3EnQl0/edit"
         SHEET_NAME = "Academic"
-        CREDS_ENV_VAR = "GOOGLE_SHEET_CREDS"
         
         # Load service account credentials from environment variable
-        service_account_info = json.loads(base64.b64decode(os.getenv(CREDS_ENV_VAR)).decode())
+        # service_account_info = json.loads(base64.b64decode(os.getenv("GOOGLE_SHEET_CREDS")).decode())
+        service_account_info = json.loads(os.getenv("GOOGLE_SHEET_CREDS"))
 
         # Define the scope (allows read/write access)
         SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
@@ -44,6 +45,9 @@ class GoogleSheetsUpdater:
 
 # Example usage
 if __name__ == "__main__":
+
+    # Load environment variables
+    load_dotenv()
 
     updater = GoogleSheetsUpdater()
     updater.append_data_to_column("Topic", "New Topic 33!")
