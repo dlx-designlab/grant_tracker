@@ -3,26 +3,33 @@
 from openai import OpenAI
 from pydantic import BaseModel
 import os
+import json
+import re
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
+from google_sheets_updater import GoogleSheetsUpdater
+from slack_updater import SlackUpdater
 
 # Load environment variables
 load_dotenv()
 
+google_sheets_updater = GoogleSheetsUpdater()
+slack_updater = SlackUpdater()
+
 app = Flask(__name__)
 
 class GrantEmailData(BaseModel):
-    titlle: str
-    content: str
-    amount: int
-    internal_deadline: str
-    actual_deadline: str
-    other_deadlines: str
-    category: str
-    eligibility: str
-    comments: str
-    url: str
-    contact: str
+    Title: str
+    Content: str
+    Amount: int
+    Internal_Deadline: str
+    Official_Deadline: str
+    Other_Deadlines: str
+    Category: str
+    Eligibility: str
+    Comments: str
+    URL: str
+    Contact: str
     # participants: list[str]
 
 
@@ -35,13 +42,13 @@ messages = [
              "Make a summary of this email which includes details of an acedemic grant." 
              "The email is in japanese. Summarize it in english." 
              "Provide the summary in the foillowing structured format:"
-             "Titlle: A Short catchy Title,"
+             "Title: A Short catchy Title,"
              "Content: max 300 chracters description,"
              "Eligibility: the eligibility criteria for the grant,"
              "Categoty: one of the following categories: Medical, Materials, Energy, Environment, Social Sciences, Humanities, Engineering, Computer Science, Mathematics, Physics, Chemistry, Biology, Other."
              "Amount: the grant ammount, preferably a number in JPY, "
              "Internal Deadline: date of internal submission deadline."
-             "Actual Deadline: the deadline for the grant application submission to the prividing agency."
+             "Official Deadline: the deadline for the grant application submission to the prividing agency."
              "Other Deadlines: any other deadlines mentioned in the email."
              "Comments: any additional comments or information."
              "URL: the URL of the grant announcement."
@@ -61,6 +68,9 @@ def receive_email():
     # Json Structure reference: https://docs.cloudmailin.com/http_post_formats/json_normalized/
     subject = data.get('headers', {}).get('subject', 'No Subject')
     body = data.get('plain', 'No Body')
+    
+    # Extract the name part from the sender string
+    sender = re.sub(r'\s*<[^>]+>', '', data.get('headers', {}).get('from', 'No Sender'))
 
     # Print the subject and body
     print(f'Subject: {subject}')
@@ -81,20 +91,18 @@ def receive_email():
     
     parsed_message = response.choices[0].message.parsed
 
+    # Send the parsed message to Slack
+    slack_message = json.dumps(parsed_message.model_dump(), indent=0).replace("{", "").replace("}", "").replace(",", "\n")
+    slack_updater.send_message(f"🎓💰 Hey All,\n{sender} would like to share an intersting grant opportunity.\nCheck out the details below:\n```{slack_message}```")
+
     # Print the structured JSON elements
     print("##############################")
     print("Email Summary....")
-    print(f"Title: {parsed_message.titlle}")
-    print(f"Content: {parsed_message.content}")
-    print(f"Amount: {parsed_message.amount}")
-    print(f"Internal Deadline: {parsed_message.internal_deadline}")
-    print(f"Actual Deadline: {parsed_message.actual_deadline}")
-    print(f"Other Deadlines: {parsed_message.other_deadlines}")
-    print(f"Category: {parsed_message.category}")
-    print(f"Eligibility: {parsed_message.eligibility}")
-    print(f"Comments: {parsed_message.comments}")
-    print(f"URL: {parsed_message.url}")
-    print(f"Contact: {parsed_message.contact}")    
+    print(f"From: {sender}")
+    for key, value in parsed_message.model_dump().items():
+        print(f"{key}: {value}")
+        google_sheets_updater.append_data_to_column(key, value) 
+
 
     return jsonify({"status": "success"}), 200
 
