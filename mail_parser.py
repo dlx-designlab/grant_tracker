@@ -20,6 +20,7 @@ app = Flask(__name__)
 
 class GrantEmailData(BaseModel):
     Title: str
+    Code: str    
     Content: str
     Amount: int
     Internal_Deadline: str
@@ -43,6 +44,7 @@ messages = [
              "The email is in japanese. Summarize it in english." 
              "Provide the summary in the foillowing structured format:"
              "Title: A Short catchy Title,"
+             "Code: the public announcement identification code - 公募識別コード,"
              "Content: max 300 chracters description,"
              "Eligibility: the eligibility criteria for the grant,"
              "Categoty: one of the following categories: Medical, Materials, Energy, Environment, Social Sciences, Humanities, Engineering, Computer Science, Mathematics, Physics, Chemistry, Biology, Other."
@@ -56,6 +58,26 @@ messages = [
             },
         ]
 
+@app.route('/')
+def index():
+    return """
+    <h1>Welcome to the DLX Grant Tracker App</h1>
+    <p>This app helps you track academic grants by parsing emails and updating Google Sheets and Slack.</p>
+    <p> We are using the "CloudMailin" service to receive emails and OpenAI to parse them.</p>
+    <p> You can also also just "POST" the data to directly to this app using the /email endpoint in a JSON format.</p>
+    <p>Example JSON format:</p>
+    <pre>
+    {
+        "headers": {
+            "subject": "Grant Opportunity",
+            "from": "Yuri Klebanov <yurikleb@iis.u-tokyo.ac.jp>"
+        },
+        "plain": "Email body and grant details content here..."
+    }
+    </pre>
+    <p>Make sure to include the subject and body of the email in the JSON payload.</p>
+    <p>fore more information, visit <a href="https://docs.cloudmailin.com/http_post_formats/json_normalized/">CloudMailin JSON Payload</a>documentation page</p>
+    """
 
 
 @app.route('/email', methods=['POST'])
@@ -66,11 +88,12 @@ def receive_email():
 
     # Extract subject and body from the JSON payload
     # Json Structure reference: https://docs.cloudmailin.com/http_post_formats/json_normalized/
-    subject = data.get('headers', {}).get('subject', 'No Subject')
-    body = data.get('plain', 'No Body')
+    subject = data.get('headers', {}).get('subject', 'No_Subject')
+    body = data.get('plain', 'No_Body')
     
     # Extract the name part from the sender string
-    sender = re.sub(r'\s*<[^>]+>', '', data.get('headers', {}).get('from', 'No Sender'))
+    # sender = re.sub(r'\s*<[^>]+>', '', data.get('headers', {}).get('from', 'No Sender'))
+    sender = data.get('headers', {}).get('from', 'No_Sender').split(" ")[0].strip()
 
     # Print the subject and body
     print(f'Subject: {subject}')
@@ -91,18 +114,19 @@ def receive_email():
     
     parsed_message = response.choices[0].message.parsed
 
-    # Send the parsed message to Slack
-    slack_message = json.dumps(parsed_message.model_dump(), indent=0).replace("{", "").replace("}", "").replace(",", "\n")
-    slack_updater.send_message(f"🎓💰 Hey All,\n{sender} would like to share an intersting grant opportunity.\nCheck out the details below:\n```{slack_message}```")
-
     # Print the structured JSON elements
     print("##############################")
     print("Email Summary....")
     print(f"From: {sender}")
     for key, value in parsed_message.model_dump().items():
         print(f"{key}: {value}")
-        google_sheets_updater.append_data_to_column(key, value) 
-
+    
+    # Send the parsed message to Slack
+    slack_message = json.dumps(parsed_message.model_dump(), indent=0).replace("{", "").replace("}", "").replace(",", "\n")
+    slack_updater.send_message(f"🎓💰 Hey All,\n{sender} just found a grant he would like to share.\nCheck out the details below:\n```{slack_message}```")
+    
+    # Update google sheet
+    google_sheets_updater.append_data_to_column(parsed_message.model_dump().items())
 
     return jsonify({"status": "success"}), 200
 

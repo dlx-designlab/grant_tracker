@@ -27,21 +27,23 @@ class GoogleSheetsUpdater:
         # Select sheet by name
         self.sheet = self.spreadsheet.worksheet(SHEET_NAME)
 
-    def append_data_to_column(self, column_title, data):
-        # Find the column by title
-        cell = self.sheet.find(column_title)
-        if not cell:
-            raise ValueError(f"Column with title '{column_title}' not found.")
-        
-        # Get the column index
-        col_index = cell.col
-        
-        # Find the last row in the sheet
-        col_values = self.sheet.col_values(col_index)
+    def append_data_to_column(self, data):
+        # find the last row in the sheet
+        col_values = self.sheet.col_values(1)
         last_row = len(col_values) + 1
-        
-        # Update the cell in the last row of the column
-        self.sheet.update_cell(last_row, col_index, data)
+
+        # Apend data to the last row:
+        for key, value in data:
+            # Find the column by title
+            cell = self.sheet.find(key)
+            if not cell:
+                raise ValueError(f"Column with title '{key}' not found.")
+            
+            # Get the column index
+            col_index = cell.col        
+
+            # Update the cell
+            self.sheet.update_cell(last_row, col_index, value)
 
 # Example usage
 if __name__ == "__main__":
@@ -50,6 +52,22 @@ if __name__ == "__main__":
     load_dotenv()
 
     updater = GoogleSheetsUpdater()
-    updater.append_data_to_column("Topic", "New Topic 33!")
+
+    sample_data = {
+        "Title": "New Grant",
+        "Code": "00000",
+        "Content": "This is a new grant.",
+        "Amount": 1000,
+        "Internal_Deadline": "2022-12-31",
+        "Official_Deadline": "2023-01-31",
+        "Other_Deadlines": "None",
+        "Category": "Other",
+        "Eligibility": "Everyone",
+        "Comments": "No comments",
+        "URL": "https://example.com",
+        "Contact": "contact@email.co.jp",
+    }
+
+    updater.append_data_to_column(sample_data.items())
 
     print("Google Sheet updated successfully!")
