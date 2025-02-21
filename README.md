@@ -2,6 +2,8 @@
 
 An app to parse grant-related emails and track the relevant ones in the DLX funding database. This app uses Flask to create a web server, OpenAI to parse email content, Google Sheets to store grant information, and Slack to send notifications.
 
+We are using the "CloudMailin" service to forwrd emails from your inbox to this app. The email content is sent to this app as a JSON payload. You can also also just "POST" the data to directly to this app using the /email endpoint in a JSON format (see example below).
+
 ## Features
 
 - Parse grant-related emails
