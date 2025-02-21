@@ -1,27 +1,27 @@
-# DLX Grant Tracker
+# 🎓💰 DLX Grant Tracker 💰🎓
 
 An app to parse grant-related emails and track the relevant ones in the DLX funding database. This app uses Flask to create a web server, OpenAI to parse email content, Google Sheets to store grant information, and Slack to send notifications.
 
 We are using the "CloudMailin" service to forwrd emails from your inbox to this app. The email content is sent to this app as a JSON payload. You can also also just "POST" the data to directly to this app using the /email endpoint in a JSON format (see example below).
 
-## Features
+## ✨ Features
 
-- Parse grant-related emails
-- Extract relevant information using OpenAI API
-- Update Google Sheets with parsed information
-- Send notifications to a Slack channel
+- 📧 Parse grant-related emails
+- 🧠 Extract relevant information using OpenAI API
+- 📊 Update Google Sheets with parsed information
+- 🔔 Send notifications to a Slack channel
 
-## Requirements
+## 🛠️ Requirements
 
-- Python 3.8+
-- Flask
-- OpenAI API Key
-- Google Sheets API Credentials
-- Slack SDK Token
-- Heroku CLI
-- Gunicorn
+- 🐍 Python 3.8+
+- 🌐 Flask
+- 🔑 OpenAI API Key
+- 📄 Google Sheets API Credentials
+- 💬 Slack SDK Token
+- 🚀 Heroku CLI
+- 🦄 Gunicorn
 
-## Installation
+## 📦 Installation
 
 1. Clone the repository:
 
@@ -54,7 +54,7 @@ We are using the "CloudMailin" service to forwrd emails from your inbox to this 
     GOOGLE_SHEET_CREDS=path_to_your_google_sheets_credentials.json
     ```
 
-## Usage
+## 🚀 Usage
 
 1. Run the Flask app locally with Gunicorn:
 
@@ -74,12 +74,12 @@ We are using the "CloudMailin" service to forwrd emails from your inbox to this 
     heroku open
     ```
 
-## Endpoints
+## 📬 Endpoints
 
 - `GET /`: Welcome page with instructions on how to use the app.
 - `POST /email`: Endpoint to receive and process grant-related emails in JSON format.
 
-## Example JSON Payload
+## 📄 Example JSON Payload
 
 ```json
 {
