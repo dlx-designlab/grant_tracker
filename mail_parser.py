@@ -122,11 +122,19 @@ def receive_email():
         print(f"{key}: {value}")
     
     # Send the parsed message to Slack
+    print("sending message to slack...")
     slack_message = json.dumps(parsed_message.model_dump(), indent=0).replace("{", "").replace("}", "").replace(",", "\n")
-    slack_updater.send_message(f"🎓💰 Hey All,\n{sender} just found a grant he would like to share.\nCheck out the details below:\n```{slack_message}```")
+    slack_updater.send_message(
+        f"🎓💰 Hey All,\n{sender} just found a grant he would like to share.\n"
+        f"Check out the details below:\n```{slack_message}```\n"
+        f"☝🏻 I will also update the <https://docs.google.com/spreadsheets/d/18taAPoE91R-0lna41CsCIO-xjD-CcRy90ikaV3EnQl0/edit?usp=sharing|DLX Funding Database> with this information."
+    )
     
     # Update google sheet
+    print("updating google sheet...")
     google_sheets_updater.append_data_to_column(parsed_message.model_dump().items())
+
+    print("Done!")
 
     return jsonify({"status": "success"}), 200
 

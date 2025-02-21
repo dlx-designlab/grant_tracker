@@ -27,7 +27,7 @@ if __name__ == "__main__":
     # Load environment variables
     load_dotenv()
 
-    MESSAGE = "Hello, Slack! This is a Test 🚀🚀🚀 !!!"
+    MESSAGE = "Hello, Slack! This is a Test 🚀🚀🚀 <https://example.com|link> !!!"
     
     slack_updater = SlackUpdater()
     slack_updater.send_message(MESSAGE)
