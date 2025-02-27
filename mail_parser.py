@@ -35,6 +35,10 @@ class GrantEmailData(BaseModel):
 
 
 openai_api_key = os.getenv('OPENAI_API_KEY')
+if openai_api_key:
+    raise ValueError("OPENAI_API_KEY environment variable not set")
+        
+
 # print(f'API Key: {api_key}')
 client = OpenAI(api_key=openai_api_key)
 messages = [

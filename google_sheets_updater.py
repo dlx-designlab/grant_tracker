@@ -14,6 +14,8 @@ class GoogleSheetsUpdater:
         # Load service account credentials from environment variable
         # service_account_info = json.loads(base64.b64decode(os.getenv("GOOGLE_SHEET_CREDS")).decode())
         service_account_info = json.loads(os.getenv("GOOGLE_SHEET_CREDS"))
+        if not service_account_info:
+            raise ValueError("GOOGLE_SHEET_CREDS environment variable not set")
 
         # Define the scope (allows read/write access)
         SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]

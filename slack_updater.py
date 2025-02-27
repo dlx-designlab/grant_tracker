@@ -10,7 +10,9 @@ class SlackUpdater:
         if not SLACK_BOT_TOKEN:
             raise ValueError("SLACK_BOT_TOKEN environment variable not set")
         
-        self.CHANNEL_ID = "C08EJP8DWBT"  # it-experiments channel
+        self.CHANNEL_ID = os.getenv("SLACK_CHANNEL_ID")
+        if not self.CHANNEL_ID:
+            raise ValueError("SLACK_CHANNEL_ID environment variable not set")
         
         self.client = WebClient(token=SLACK_BOT_TOKEN)
 
