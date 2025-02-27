@@ -3,6 +3,7 @@
 from openai import OpenAI
 from pydantic import BaseModel
 import os
+from dotenv import load_dotenv
 import json
 import re
 from flask import Flask, request, jsonify
@@ -35,7 +36,7 @@ class GrantEmailData(BaseModel):
 
 
 openai_api_key = os.getenv('OPENAI_API_KEY')
-if openai_api_key:
+if not openai_api_key:
     raise ValueError("OPENAI_API_KEY environment variable not set")
         
 
