@@ -35,6 +35,10 @@ class GrantEmailData(BaseModel):
     # participants: list[str]
 
 
+openai_model = os.getenv('OPENAI_MODEL')
+if not openai_model:
+    raise ValueError("OPENAI_MODEL environment variable not set")
+
 openai_api_key = os.getenv('OPENAI_API_KEY')
 if not openai_api_key:
     raise ValueError("OPENAI_API_KEY environment variable not set")
@@ -109,7 +113,7 @@ def receive_email():
     user_prompt = f"Subject: {subject}\nBody: {body}"
     messages.append({"role": "user", "content": user_prompt})
     response = client.beta.chat.completions.parse(
-            model = "gpt-4o-mini",
+            model = openai_model,
             store = True,
             messages = messages,
             response_format = GrantEmailData,
@@ -133,6 +137,7 @@ def receive_email():
         f"🎓💰 Hey All,\n{sender} just found a grant he would like to share.\n"
         f"Check out the details below:\n```{slack_message}```\n"
         f"☝🏻 I will also update the <https://docs.google.com/spreadsheets/d/18taAPoE91R-0lna41CsCIO-xjD-CcRy90ikaV3EnQl0/edit?usp=sharing|DLX Funding Database> with this information."
+        f"Parsed by: {openai_model}"
     )
     
     # Update google sheet
