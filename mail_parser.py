@@ -136,8 +136,8 @@ def receive_email():
     slack_updater.send_message(
         f"🎓💰 Hey All,\n{sender} just found a grant he would like to share.\n"
         f"Check out the details below:\n```{slack_message}```\n"
-        f"☝🏻 I will also update the <https://docs.google.com/spreadsheets/d/18taAPoE91R-0lna41CsCIO-xjD-CcRy90ikaV3EnQl0/edit?usp=sharing|DLX Funding Database> with this information."
-        f"Parsed by: {openai_model}"
+        f"☝🏻 I will also update the <https://docs.google.com/spreadsheets/d/18taAPoE91R-0lna41CsCIO-xjD-CcRy90ikaV3EnQl0/edit?usp=sharing|DLX Funding Database> with this information.\n"
+        f"🤖 Parsed by : {openai_model}"
     )
     
     # Update google sheet
